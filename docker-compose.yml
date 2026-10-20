@@ -26,6 +26,7 @@ services:
     restart: unless-stopped
 
 networks:
-  # 共享外部网络：需先存在（本仓库 setup 时已创建；其他栈用 external 方式加入同一网络）
+  # app-network 已存在于宿主机 Docker 中（由其他栈/手动创建），
+  # 这里仅加入，不创建、不删除
   app-network:
     external: true
