@@ -21,4 +21,11 @@ services:
     # Linux 上默认没有 host.docker.internal，加一行 host-gateway 映射；macOS 无影响
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
     restart: unless-stopped
+
+networks:
+  # 共享外部网络：需先存在（本仓库 setup 时已创建；其他栈用 external 方式加入同一网络）
+  app-network:
+    external: true
