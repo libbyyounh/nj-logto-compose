@@ -1,0 +1,24 @@
+# Logto 本地部署（复用宿主机已有的 PostgreSQL，不创建数据库容器）
+# 启动: docker compose up -d
+# 管理控制台: http://localhost:3002 （首次访问走初始化向导创建管理员账号）
+# 服务地址:   http://localhost:3001
+services:
+  logto:
+    image: svhd/logto:${LOGTO_TAG:-latest}
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    ports:
+      - "${LOGTO_PORT:-3001}:3001"
+      - "${LOGTO_ADMIN_PORT:-3002}:3002"
+    environment:
+      TRUST_PROXY_HEADER: 1
+      # 数据库连接串（完整格式见 .env）
+      DB_URL: ${DB_URL:?请在 .env 中设置 DB_URL}
+      # 对外地址，本地保持 localhost；部署到服务器时改成你的域名
+      ENDPOINT: ${LOGTO_ENDPOINT:-http://localhost:3001}
+      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-http://localhost:3002}
+      # 可选：需要访问内网 webhook / SSO / OIDC 端点时放开，例如 10.0.0.0/8
+      SSRF_ALLOWED_ADDRESSES: ${SSRF_ALLOWED_ADDRESSES:-}
+    # Linux 上默认没有 host.docker.internal，加一行 host-gateway 映射；macOS 无影响
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
